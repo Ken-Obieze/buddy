@@ -38,9 +38,7 @@ def load_user(user_id):
 @app.route('/')
 def landing():
     """Landing page."""
-    current_year = date.today().year
-    user_avatar = get_user_avatar(current_user)
-    return render_template('landing.html', current_year=current_year, user_avatar=user_avatar)
+    return render_template('landing.html')
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -92,7 +90,9 @@ def signout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', user=current_user)
+    current_year = date.today().year
+    user_avatar = get_user_avatar(current_user)
+    return render_template('dashboard.html', user=current_user, current_year=current_year, user_avatar=user_avatar)
 
 
 @app.route('/profile', methods=['GET', 'POST'])
