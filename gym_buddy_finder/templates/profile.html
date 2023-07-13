@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="profile-container">
+  <h1>Profile</h1>
+  <form method="POST" action="/profile" enctype="multipart/form-data">
+    <img id="profile-picture" src="{{ current_picture }}" alt="Profile Picture">
+    <input type="file" name="profile_picture" accept="image/*" onchange="updateProfilePicture(event)">
+    <input type="text" name="phone_number" placeholder="Phone Number">
+    <input type="text" name="address" placeholder="Address">
+    
+    <h2>Exercise Preferences</h2>
+    <div class="exercise-preferences">
+      <label for="deadlift"><input type="checkbox" id="deadlift" name="exercises" value="Deadlift"> Deadlift</label>
+      <label for="tbarrow"><input type="checkbox" id="tbarrow" name="exercises" value="T-bar Row"> T-bar Row</label>
+      <label for="plank"><input type="checkbox" id="plank" name="exercises" value="Plank"> Plank</label>
+      <label for="squat"><input type="checkbox" id="squat" name="exercises" value="Squat"> Squat</label>
+      <label for="pullup"><input type="checkbox" id="pullup" name="exercises" value="pullup">Pullup</label>
+      <label for="curls"><input type="checkbox" id="curls" name="exercises" value="curls">Curls</label>
+      <label for="dips"><input type="checkbox" id="dips" name="exercises" value="dips">Dips</label>
+      <label for="pushup"><input type="checkbox" id="pushup" name="exercises" value="pushup">Pushup</label>
+      <label for="benchpress"><input type="checkbox" id="benchpress" name="exercises" value="benchpress">Benchpress</label>
+      <label for="swimming"><input type="checkbox" id="swimming" name="exercises" value="swimming">Swimming</label>
+      <label for="running"><input type="checkbox" id="running" name="exercises" value="running">Running</label>
+      <label for="jogging"><input type="checkbox" id="jogging" name="exercises" value="jogging">Jogging</label>
+      <label for="speedwalk"><input type="checkbox" id="speedwalk" name="exercises" value="speedwalk">Speed walking</label>
+      <label for="bikeride"><input type="checkbox" id="bikeride"" name="exercises" value="bikeride"">Bike riding"</label>
+      <label for="volleyball"><input type="checkbox" id="volleyball" name="exercises" value="volleyball">Volleyball</label>
+      <label for="soccer"><input type="checkbox" id="soccer" name="exercises" value="soccer">Soccer</label>
+      <label for="basketball"><input type="checkbox" id="basketball" name="exercises" value="basketball">Basketball</label>
+      <label for="tennis"><input type="checkbox" id="tennis" name="exercises" value="tennis">Tennis</label>
+    </div>
+    
+    <button type="submit">Save</button>
+  </form>
+</div>
+
+<script>
+  function updateProfilePicture(event) {
+    var file = event.target.files[0];
+    var reader = new FileReader();
+
+    reader.onload = function(e) {
+      document.getElementById('profile-picture').src = e.target.result;
+    };
+
+    reader.readAsDataURL(file);
+  }
+</script>
+{% endblock %}
+

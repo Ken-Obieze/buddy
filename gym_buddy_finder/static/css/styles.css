@@ -1,0 +1,287 @@
+/* base css */
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* landing css */
+
+.landing-container {
+  text-align: center;
+}
+
+.landing-container h1 {
+  font-size: 36px;
+  margin-top: 40px;
+}
+
+.landing-container h2 {
+  font-size: 24px;
+  margin-top: 20px;
+}
+
+.landing-container p {
+  margin-top: 10px;
+}
+
+.landing-container a {
+  margin-top: 20px;
+  display: inline-block;
+  text-decoration: none;
+  color: #fff;
+  background-color: #007bff;
+  padding: 10px 20px;
+  border-radius: 4px;
+}
+
+/* signin css */
+
+.signin-container {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.signin-container h1 {
+  font-size: 24px;
+  margin-top: 20px;
+}
+
+.signin-container form {
+  margin-top: 20px;
+}
+
+.signin-container input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.signin-container button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* signup css */
+
+.signup-container {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.signup-container h1 {
+  font-size: 24px;
+  margin-top: 20px;
+}
+
+.signup-container form {
+  margin-top: 20px;
+}
+
+.signup-container input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.signup-container button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.signup-container p {
+  margin-top: 10px;
+}
+
+/* dashboard css */
+
+.dashboard-container {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.dashboard-container h1 {
+  font-size: 24px;
+  margin-top: 20px;
+}
+
+.dashboard-container h2 {
+  font-size: 18px;
+  margin-top: 20px;
+}
+
+.dashboard-container ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.dashboard-container li {
+  margin-bottom: 10px;
+}
+
+/* matching css */
+
+.matching-container {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.matching-container h1 {
+  font-size: 24px;
+  margin-top: 20px;
+}
+
+.matching-container #map {
+  width: 100%;
+  height: 400px;
+  margin-top: 20px;
+}
+
+.matching-container .profile-details {
+  margin-top: 20px;
+}
+
+.matching-container .buttons {
+  margin-top: 20px;
+}
+
+.matching-container button {
+  margin-right: 10px;
+}
+
+/* profile css */
+
+.profile-container {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.profile-container h1 {
+  font-size: 24px;
+  margin-top: 20px;
+}
+
+.profile-container form {
+  margin-top: 20px;
+}
+
+.profile-container input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.profile-container button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* notifications css */
+
+.notifications-container {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.notifications-container h1 {
+  font-size: 24px;
+  margin-top: 20px;
+}
+
+.notifications-container ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.notifications-container li {
+  margin-bottom: 10px;
+}
+
+.notifications-container .buddy-request {
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+.notifications-container .buddy-request .profile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* buddy_chat css */
+
+.buddy-chat-container {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.buddy-chat-container h1 {
+  font-size: 24px;
+  margin-top: 20px;
+}
+
+.buddy-chat-container .chat {
+  margin-top: 20px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  height: 300px;
+  overflow-y: scroll;
+}
+
+.buddy-chat-container .chat-message {
+  margin-bottom: 10px;
+}
+
+.buddy-chat-container .chat-input {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.buddy-chat-container .chat-button {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #007bff;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
