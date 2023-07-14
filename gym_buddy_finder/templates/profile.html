@@ -30,7 +30,13 @@
       <label for="basketball"><input type="checkbox" id="basketball" name="exercises" value="basketball">Basketball</label>
       <label for="tennis"><input type="checkbox" id="tennis" name="exercises" value="tennis">Tennis</label>
     </div>
-    
+    <button type="submit">Save</button>
+  </form>
+  <h2>Account</h2>
+  <form method="POST" action="/account">
+    <input type="password" name="current_password" placeholder="Current Password" required>
+    <input type="password" name="new_password" placeholder="New Password">
+    <input type="password" name="confirm_password" placeholder="Confirm New Password">
     <button type="submit">Save</button>
   </form>
 </div>
@@ -48,4 +54,3 @@
   }
 </script>
 {% endblock %}
-
