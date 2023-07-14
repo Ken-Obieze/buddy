@@ -1,24 +1,111 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="dashboard-container">
-  <h1>Welcome to your Dashboard</h1>
-  <h2>Buddy List</h2>
-  <ul>
-    {% for buddy in buddies %}
-      <li>
-        {{ buddy.first_name }} {{ buddy.last_name }}
-        <a href="/chat/{{ buddy.id }}">Chat</a>
-      </li>
-    {% endfor %}
-  </ul>
-  <h2>Previous Exercises</h2>
-  <ul>
-    {% for exercise in exercises %}
-      <li>{{ exercise }}</li>
-    {% endfor %}
-  </ul>
-  <h2>Weekly Progress</h2>
-  <!-- Add chart for weekly progress -->
-</div>
+<h1>Dashboard</h1>
+<ul>
+  {% for buddy in buddies %}
+  <li>
+    <a href="/chat/{{ buddy.id }}">{{ buddy.first_name }}</a>
+    <button class="chat-button" data-buddy-id="{{ buddy.id }}">Chat</button>
+  </li>
+  {% endfor %}
+</ul>
+<h2>Exercises</h2>
+<form id="exercise-form">
+  {% for exercise in exercises %}
+  <label>
+    <input type="checkbox" name="exercises" value="{{ exercise }}"> {{ exercise }}
+  </label>
+  {% endfor %}
+</form>
+<h2>Schedule Workout</h2>
+<form id="workout-form">
+  <label>
+    Date:
+    <input type="date" name="date">
+  </label>
+  <label>
+    Time:
+    <input type="time" name="time">
+  </label>
+  <button type="submit">Schedule Workout</button>
+</form>
+<h2>Engagement</h2>
+<p>How much engagement have you had with your buddy this week?</p>
+<form id="engagement-form">
+  <input type="number" name="engagement">
+  <button type="submit">Submit</button>
+</form>
+<h2>Progress</h2>
+<canvas id="chart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Chart initialization
+  var chartData = {
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    datasets: [{
+      label: 'Weekly Progress',
+      data: [0, 0, 0, 0, 0, 0, 0],
+      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      borderColor: 'rgba(75, 192, 192, 1)',
+      borderWidth: 1
+    }]
+  };
+
+  var ctx = document.getElementById('chart').getContext('2d');
+  var chart = new Chart(ctx, {
+    type: 'bar',
+    data: chartData,
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 7,
+          ticks: {
+            stepSize: 1
+          }
+        }
+      }
+    }
+  });
+
+  // Event listener for exercise form submission
+  document.getElementById('exercise-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var selectedExercises = Array.from(document.querySelectorAll('input[name="exercises"]:checked')).map(function(input) {
+      return input.value;
+    });
+    console.log(selectedExercises);  // Replace with your logic to handle selected exercises
+  });
+
+  // Event listener for workout form submission
+  document.getElementById('workout-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var date = document.getElementById('workout-form').elements.date.value;
+    var time = document.getElementById('workout-form').elements.time.value;
+    console.log(date, time);  // Replace with your logic to handle scheduled workout
+  });
+
+  // Event listener for engagement form submission
+  document.getElementById('engagement-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var engagement = document.getElementById('engagement-form').elements.engagement.value;
+    console.log(engagement);  // Replace with your logic to handle engagement value
+
+    // Update chart data
+    chart.data.datasets[0].data = [0, 0, 0, 0, 0, 0, engagement];
+    chart.update();
+  });
+
+  // Event listener for chat button click
+  var chatButtons = document.querySelectorAll('.chat-button');
+  chatButtons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      var buddyId = button.dataset.buddyId;
+      console.log('Chat with buddy ID:', buddyId);  // Replace with your logic to handle chat with buddy
+    });
+  });
+</script>
 {% endblock %}

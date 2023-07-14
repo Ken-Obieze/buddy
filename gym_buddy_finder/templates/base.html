@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>Gym Buddy Finder</title>
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </head>
@@ -10,13 +10,29 @@
   <header>
     <nav>
       <ul>
-        <li><a href="/">Home</a></li>
+        <!--
         <li><a href="/dashboard">Dashboard</a></li>
         <li><a href="/matching">Matching</a></li>
         <li><a href="/profile">Profile</a></li>
         <li><a href="/chat">Chat</a></li>
         <li><a href="/notifications"><i class="fas fa-bell"></i></a></li>
         <li><a href="/profile"><span id="user-avatar">{{ user_avatar }}</span></a></li>
+        -->
+        <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('matching') }}">Matching</a></li>
+        <li><a href="{{ url_for('profile') }}">Profile</a></li>
+        <li><a href="{{ url_for('chat') }}">Chat</a></li>
+        <li><a href="{{ url_for('notifications') }}"><i class="fas fa-bell"></i></a></li>
+        <li>
+            <div class="avatar">
+                {% if current_user.profile_picture %}
+                    <img src="{{ url_for('static', filename=current_user.profile_picture) }}" alt="Profile Picture">
+                {% else %}
+                    <span>{{ current_user.first_name[0] }}{{ current_user.last_name[0] }}</span>
+                {% endif %}
+            </div>
+        </li>
+        <li><a href="{{ url_for('signout') }}">Sign Out</a></li>
       </ul>
     </nav>
   </header>
@@ -27,9 +43,8 @@
   </div>
 
   <footer>
-    <p>All rights reserved Gym Buddy Finder &copy; {{ current_year }}</p>
+    <p>All rights reserved Gym Buddy Finder &copy; 2023</p>
   </footer>
 
-  <script src="{{ url_for('static', filename='your-jquery-file.js') }}"></script>
 </body>
 </html>

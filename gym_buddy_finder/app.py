@@ -1,13 +1,20 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
+from flask_googlemaps import GoogleMaps
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'This is our secret key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 
+app.config['GOOGLEMAPS_KEY'] = 'AIzaSyDWGUj5K9NHq_MSoCpJDc-4J0Ud-qHNVLY'
+GoogleMaps(app)
+
+chat_bp = Blueprint("chat", __name__)
+
 login_manager = LoginManager(app)
+login_manager.init_app(app)
 login_manager.login_view = 'signin'
 
 
@@ -30,6 +37,13 @@ class User(UserMixin, db.Model):
         return str(self.id)
 
 
+class ChatMessage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    message = db.Column(db.String(200))
+    timestamp = db.Column(db.DateTime)
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -49,6 +63,10 @@ def signup():
         last_name = request.form['last_name']
         email = request.form['email']
         password = request.form['password']
+        confirm_password = request.form['confirm_password']
+
+        if password != confirm_password:
+            return render_template("signup.html", error="Passwords don't match")
 
         user = User(first_name=first_name, last_name=last_name, email=email, password=password)
 
@@ -90,9 +108,7 @@ def signout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    current_year = date.today().year
-    user_avatar = get_user_avatar(current_user)
-    return render_template('dashboard.html', user=current_user, current_year=current_year, user_avatar=user_avatar)
+    return render_template('dashboard.html', user=current_user)
 
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -114,6 +130,44 @@ def profile():
 
     return render_template('profile.html', user=current_user)
 
+@app.route("/matching")
+@login_required
+def matching():
+    location = request.args.get("location")
+    users = User.query.filter(User.location.near(location)).all()
+    marker_info = []
+    for user in users:
+        marker_info.append({
+            "location": {"lat": user.latitude, "lng": user.longitude},
+            "title": user.first_name,
+            "snippet": user.last_name,
+        })
+    return render_template("matching_page.html", marker_info=marker_info)
+
+
+@app.route("/buddy_up/<int:user_id>")
+@login_required
+def buddy_up(user_id):
+    sender_id = current_user.id
+    receiver_id = user_id
+    notification = Notification(sender_id=sender_id, receiver_id=receiver_id, type="buddy_up")
+    db.session.add(notification)
+    db.session.commit()
+    return {"success": True}
+
+
+@app.route('/chat')
+@login_required
+def chat():
+    return render_template('chat.html')
+
+
+@app.route('/notifications')
+@login_required
+def notifications():
+    return render_template('notifications.html')
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)

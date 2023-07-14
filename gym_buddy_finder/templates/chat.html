@@ -1,0 +1,86 @@
+{% extends 'base1.html' %}
+
+{% block content %}
+<h1>Chat</h1>
+<div id="messages-container"></div>
+<form id="message-form">
+  <input type="text" id="message-input" placeholder="Type your message">
+  <button type="submit">Send</button>
+</form>
+
+<script>
+var chatId = {{ chat.id }};
+
+// Function to get the chat messages
+function getMessages() {
+  $.ajax({
+    url: '/chat/get_messages?chat_id=' + chatId,
+    type: 'GET',
+    success: function(response) {
+      if (response.messages) {
+        var messagesContainer = document.getElementById('messages-container');
+        messagesContainer.innerHTML = '';
+
+        response.messages.forEach(function(message) {
+          var messageElement = document.createElement('div');
+          messageElement.textContent = message.content;
+          messagesContainer.appendChild(messageElement);
+        });
+
+        // Scroll to the bottom of the messages container
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    },
+    error: function() {
+      console.log('An error occurred while getting chat messages.');
+    }
+  });
+}
+
+// Event listener for message form submission
+document.getElementById('message-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var messageInput = document.getElementById('message-input');
+  var message = messageInput.value;
+
+  // Send the message
+  sendMessage(message);
+  messageInput.value = '';
+});
+
+// Function to send a message
+function sendMessage(message) {
+  $.ajax({
+    url: '/chat/send_message',
+    type: 'POST',
+    data: {
+      chat_id: chatId,
+      message: message
+    },
+    success: function(response) {
+      if (response.success) {
+        // Get updated messages after sending the message
+        getMessages();
+      } else {
+        alert('Failed to send the message.');
+      }
+    },
+    error: function() {
+      alert('An error occurred while sending the message.');
+    }
+  });
+}
+
+// Function to periodically refresh the chat messages
+function refreshChat() {
+  getMessages();
+  setTimeout(refreshChat, 5000); // Refresh every 5 seconds
+}
+
+// Initial load of chat messages
+getMessages();
+
+// Start periodically refreshing the chat messages
+refreshChat();
+</script>
+{% endblock %}
