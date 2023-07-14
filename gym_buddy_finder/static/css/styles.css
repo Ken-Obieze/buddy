@@ -216,7 +216,7 @@ body {
   cursor: pointer;
 }
 
-.exercise-preferences {
+/**.exercise-preferences {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -225,7 +225,7 @@ body {
 .exercise-preferences {
   width: 30%;
   margin-bottom: 10px;
-}
+}**/
 
 .exercise-preferences {
   align-items: normal;
