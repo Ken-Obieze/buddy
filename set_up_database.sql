@@ -1,0 +1,8 @@
+-- prepares a MySQL server for the project
+
+CREATE DATABASE IF NOT EXISTS MYSQL_DB;
+CREATE USER IF NOT EXISTS 'MYSQL_USER'@'localhost' IDENTIFIED BY 'MYSQL_PWD';
+GRANT ALL PRIVILEGES ON `MYSQL_DB`.* TO 'MYSQL_USER'@'localhost';
+GRANT SELECT ON `performance_schema`.* TO 'MYSQL_USER'@'localhost';
+FLUSH PRIVILEGES;
+

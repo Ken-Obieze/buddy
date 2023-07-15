@@ -1,11 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, Blueprint
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, Blueprint, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from flask_googlemaps import GoogleMaps
+import math
+from sqlalchemy import func
+from sqlalchemy.sql import text
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'This is our secret key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://MYSQL_USER:MYSQL_PWD@localhost/MYSQL_DB'
 db = SQLAlchemy(app)
 
 app.config['GOOGLEMAPS_KEY'] = 'AIzaSyDWGUj5K9NHq_MSoCpJDc-4J0Ud-qHNVLY'
@@ -35,6 +38,28 @@ class User(UserMixin, db.Model):
     def get_id(self):
         """Fetch user_id."""
         return str(self.id)
+    
+    def near(self, latitude, longitude, radius):
+        """Check if a user is within a given radius of a coordinate."""
+        earth_radius = 3959  # Radius of the Earth in miles
+
+        # Convert latitude and longitude to radians
+        latitude_rad = math.radians(latitude)
+        longitude_rad = math.radians(longitude)
+
+        # Calculate the differences in latitude and longitude
+        lat_diff = db.func.radians(self.latitude) - latitude_rad
+        lon_diff = db.func.radians(self.longitude) - longitude_rad
+
+        # Calculate the Haversine formula components
+        a = db.func.pow(db.func.sin(lat_diff / 2), 2) + db.func.cos(latitude_rad) * db.func.cos(db.func.radians(self.latitude)) * db.func.pow(db.func.sin(lon_diff / 2), 2)
+        c = 2 * func.atan2(func.sqrt(a), func.sqrt(1 - a))
+
+        # Calculate the distance in miles
+        distance = earth_radius * c
+
+        # Check if the distance is within the specified radius
+        return distance <= radius
 
 
 class ChatMessage(db.Model):
@@ -46,7 +71,8 @@ class ChatMessage(db.Model):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    g.user = User.query.get(int(user_id))
+    return g.user
 
 
 @app.route('/')
@@ -133,8 +159,11 @@ def profile():
 @app.route("/matching")
 @login_required
 def matching():
-    location = request.args.get("location")
-    users = User.query.filter(User.location.near(location)).all()
+    location = request.args.get("location") # check this later
+    lng = 37.7749
+    lat = -122.4194
+    starting_location = {'lat': lat, 'lng': lng}
+    users = User.query.filter(g.user.near(lat, lng, 100)).all()
     marker_info = []
     for user in users:
         marker_info.append({
@@ -142,7 +171,7 @@ def matching():
             "title": user.first_name,
             "snippet": user.last_name,
         })
-    return render_template("matching_page.html", marker_info=marker_info)
+    return render_template("matching.html", marker_info=marker_info, starting_location=starting_location)
 
 
 @app.route("/buddy_up/<int:user_id>")
