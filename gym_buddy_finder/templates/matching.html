@@ -1,88 +1,101 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-<div id="map"></div>
-<div id="user-details" style="display: none;">
-  <h2 id="user-name"></h2>
-  <p id="user-address"></p>
-  <p id="user-exercises"></p>
-  <button id="buddy-up-button" onclick="sendBuddyRequest()">Buddy Up</button>
-  <button id="skip-button" onclick="skipUser()">Skip</button>
-</div>
-<script>
-var selectedUser = null;
+    <div class="container">
+        <font face="verdana" size='7'> Mapbox maps in your apps</font> <br/><br/>
+        <input class="inputBox" type="text" id="Address" placeholder="Enter Address" />
+        <button class="button" onclick="geocodeAddress()">Submit</button>
+        <div id='map'></div><br/><br/>
+    </div>
 
-function initMap() {
-    var map = new google.maps.Map(document.getElementById("map"), {
-        center: {lat: {{ starting_location.lat }}, lng: {{ starting_location.lng }}},
-        zoom: 10,
-    });
+    <script>
+        function geocodeAddress() {
+            var address = document.getElementById("Address").value;
+            fetch('https://api.mapbox.com/geocoding/v5/mapbox.places/' + encodeURIComponent(address) + '.json?access_token=pk.eyJ1Ijoia2Vub2JpZXplIiwiYSI6ImNsa2IxbDB0aTA5djEzb28wbHl5NWJvemoifQ.OErQrPGpsGgJ8VyB6sJz8Q')
+                .then(response => response.json())
+                .then(data => {
+                    var longitude = data.features[0].center[0];
+                    var latitude = data.features[0].center[1];
+                    displayMap(longitude, latitude);
+                })
+                .catch(error => console.error('Error:', error));
+        }
 
-    var marker_info = JSON.parse('{{ marker_info | tojson | safe }}');
-    for (var i = 0; i < marker_info.length; i++) {
-        var marker = new google.maps.Marker({
-            position: marker_info[i].location,
-            title: marker_info[i].title,
-            snippet: marker_info[i].snippet,
-        });
-        marker.addListener("click", function() {
-            selectedUser = marker_info[i];
-            showUserDetails();
-        });
-        marker.setMap(map);
-    }
-}
+        function displayMap(longitude, latitude) {
+            mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vub2JpZXplIiwiYSI6ImNsa2IxbDB0aTA5djEzb28wbHl5NWJvemoifQ.OErQrPGpsGgJ8VyB6sJz8Q';
+            var map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/satellite-streets-v10',
+                center: [longitude, latitude],
+                zoom: 12,
+                bearing: -17.6,
+                pitch: 45
+            });
 
-function showUserDetails() {
-    document.getElementById("user-name").textContent = selectedUser.title;
-    document.getElementById("user-address").textContent = selectedUser.snippet;
-    document.getElementById("user-exercises").textContent = selectedUser.exercises;
-    document.getElementById("user-details").style.display = "block";
-}
+            
+            // Add the user's marker (red)
+            var userMarker = new mapboxgl.Marker({ color: 'red' })
+                .setLngLat([longitude, latitude])
+                .addTo(map);
 
-function sendBuddyRequest() {
-    // Implement sending buddy request functionality
-    $.ajax({
-    url: '/buddy_up/' + userId,
-    type: 'GET',
-    success: function(response) {
-      // Handle the success response
-      if (response.success) {
-        alert('Buddy request sent successfully!');
-      } else {
-        alert('Failed to send buddy request.');
-      }
-    },
-    error: function() {
-      alert('An error occurred while sending the buddy request.');
-    }
-  });
-}
+            {% for user in marker_info %}
+                var userMarker = new mapboxgl.Marker({ color: 'blue' })
+                    .setLngLat([{{ user.location.lng }}, {{ user.location.lat }}])
+                    .setPopup(new mapboxgl.Popup().setHTML(`
+                        <h3>${user.title} ${user.snippet}</h3>
+                        <p>Address: ${user.address}</p>
+                        <p>Phone: ${user.phone}</p>
+                `   ))
+                    .addTo(map);
+              {% endfor %}
 
-function skipUser() {
-    // Implement skip user functionality here
-    // You can reset the selectedUser object and hide the user details section
-    selectedUser = null;
-    document.getElementById("user-details").style.display = "none";
-}
+            // Add click event for the user's marker
+            userMarker.setPopup(new mapboxgl.Popup().setHTML(
+                `<h3>Your Profile</h3>
+                <p>Address: Your Address</p>
+                <p>Phone: Your Phone Number</p>`
+            ));
 
-$(document).ready(function() {
-  // Event handler for clicking the "Buddy Up" button
-  $('#buddy-up-button').click(function() {
-    // Get the selected user's ID
-    var userId = selectedUser.id;
-    
-    // Call the sendBuddyRequest function
-    sendBuddyRequest(userId);
-  });
+            // Add navigation controls
+            var nav = new mapboxgl.NavigationControl();
+            map.addControl(nav, 'top-left');
 
-  // Event handler for clicking the "Skip" button
-  $('#skip-button').click(function() {
-    // Call the skipUser function
-    skipUser();
-  });
-});
+            // Add geolocation control
+            map.addControl(new mapboxgl.GeolocateControl({
+                positionOptions: {
+                    enableHighAccuracy: false
+                },
+                trackUserLocation: false
+            }));
 
-google.maps.event.addDomListener(window, "load", initMap);
-</script>
+            // Add 3D building layer
+            map.on('load', function() {
+                map.addLayer({
+                    'id': '3d-buildings',
+                    'source': 'composite',
+                    'source-layer': 'building',
+                    'filter': ['==', 'extrude', 'true'],
+                    'type': 'fill-extrusion',
+                    'minzoom': 15,
+                    'paint': {
+                        'fill-extrusion-color': '#aaa',
+                        'fill-extrusion-height': [
+                            "interpolate", ["linear"], ["zoom"],
+                            15, 0,
+                            15.05, ["get", "height"]
+                        ],
+                        'fill-extrusion-base': [
+                            "interpolate", ["linear"], ["zoom"],
+                            15, 0,
+                            15.05, ["get", "min_height"]
+                        ],
+                        'fill-extrusion-opacity': 0.6
+                    }
+                }, 'waterway-label');
+            });
+        }
+
+        // Initial display with default coordinates
+        displayMap();
+    </script>
 {% endblock %}

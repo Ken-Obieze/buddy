@@ -130,20 +130,39 @@ def profile():
 
     return render_template('profile.html', user=current_user)
 
+
+def geocode_address(address):
+    import requests
+    response = requests.get(f'https://api.mapbox.com/geocoding/v5/mapbox.places/{address}.json?access_token=pk.eyJ1Ijoia2Vub2JpZXplIiwiYSI6ImNsa2IxbDB0aTA5djEzb28wbHl5NWJvemoifQ.OErQrPGpsGgJ8VyB6sJz8Q')
+    data = response.json()
+    longitude = data['features'][0]['center'][0]
+    latitude = data['features'][0]['center'][1]
+    return longitude, latitude
+
 @app.route("/matching")
 @login_required
 def matching():
-    location = request.args.get("location")
-    users = User.query.filter(User.location.near(location)).all()
+    address = current_user.address
+    longitude, latitude = geocode_address(address)
+
+    users = User.query.all()
+
     marker_info = []
+
     for user in users:
+        if user.id == current_user.id:
+            continue
+
         marker_info.append({
             "location": {"lat": user.latitude, "lng": user.longitude},
             "title": user.first_name,
             "snippet": user.last_name,
+            "address": user.address,
+            "phone": user.phone_number,
+            "profile_picture": user.profile_picture
         })
-    return render_template("matching_page.html", marker_info=marker_info)
 
+    return render_template("matching.html", marker_info=marker_info)
 
 @app.route("/buddy_up/<int:user_id>")
 @login_required
@@ -159,8 +178,14 @@ def buddy_up(user_id):
 @app.route('/chat')
 @login_required
 def chat():
-    return render_template('chat.html')
+    chat_id = request.args.get('chat_id')
+    
+    chat = ChatMessage.query.filter((ChatMessage.sender_id == current_user.id) | (ChatMessage.receiver_id == current_user.id),
+                             ChatMessage.id == chat_id).first()
+    if not chat:
+        return "Chat not found or you are not authorized to access it.", 403
 
+    return render_template('chat.html', chat=chat)
 
 @app.route('/notifications')
 @login_required
